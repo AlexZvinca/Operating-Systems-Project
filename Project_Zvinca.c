@@ -137,19 +137,39 @@ void input_options(char* file_name){
     if(S_ISLNK(buf.st_mode)){
         for(i=0;i<l;i++){
             if(s[i]=='n'){
-
+                printf("The name is %s\n", file_name);
             }
 
             if(s[i]=='l'){
+                check = unlink(file_name);
 
+                if(check == -1){
+                    perror(strerror(errno));
+                    exit(errno);
+                }
+
+                printf("Symbolic link has been deleted");
+                return;
             }
 
             if(s[i]=='d'){
-
+                long size;
+                size = buf.st_size;
+                printf("The size is %ld bytes\n", size);
             }
 
             if(s[i]=='t'){
+                struct stat buf2;
 
+                check = stat(file_name, &buf2);
+                if(check == -1){
+                    perror(strerror(errno));
+                    exit(errno);
+                }
+
+                long size;
+                size = buf2.st_size;
+                printf("The size is %ld bytes\n", size);
             }
 
             if(s[i]=='a'){
