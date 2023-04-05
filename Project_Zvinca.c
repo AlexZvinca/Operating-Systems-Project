@@ -4,6 +4,8 @@
 #include <string.h>
 #include <stdlib.h>
 #include <sys/types.h>
+#include <time.h>
+#include <unistd.h>
 
 void print_type(struct stat buf){
 
@@ -55,6 +57,109 @@ void menu(struct stat buf){
     }
 }
 
+void input_options(char* file_name){
+
+    struct stat buf;
+    int check;
+
+    check = lstat(file_name, &buf);
+    if(check == -1){
+        perror(strerror(errno));
+        exit(errno);
+    }
+
+    printf("Please enter your options!\n");
+
+    char s[10];
+    int i, l;
+    scanf("%s", s);
+
+    if(s[0]!='-'){
+        printf("Wrong input\n");
+        exit(-1);
+    }
+
+    l = strlen(s);
+
+    if(S_ISREG(buf.st_mode)){
+        for(i=0;i<l;i++){
+            if(s[i]=='n'){
+                printf("The name is %s\n", file_name);
+            }
+
+            if(s[i]=='d'){
+                long size;
+                size = buf.st_size;
+                printf("The size is %ld bytes\n", size);
+            }
+
+            if(s[i]=='h'){
+                int count;
+                count = buf.st_nlink;
+                printf("The number of hard links is %d\n", count);
+            }
+
+            if(s[i]=='m'){
+                struct timespec ts;
+                timespec_get(&ts, buf.st_mtime);
+                printf("The last modification time is %ld.%.9ld\n", ts.tv_sec, ts.tv_nsec);
+            }
+
+            if(s[i]=='a'){
+                printf("!");
+            }
+
+            if(s[i]=='l'){
+                char link_name[1024];
+
+                printf("Input name of link: ");
+                scanf("%s", link_name);
+
+                check = symlink(file_name, link_name);
+                if(check == -1){
+                    perror(strerror(errno));
+                    exit(errno);
+                }
+
+                printf("Link has been created!\n");
+            }
+        }
+        return;
+    }
+        
+    
+
+    if(S_ISDIR(buf.st_mode)){
+        printf("Not yet\n");
+        return;
+    }
+
+    if(S_ISLNK(buf.st_mode)){
+        for(i=0;i<l;i++){
+            if(s[i]=='n'){
+
+            }
+
+            if(s[i]=='l'){
+
+            }
+
+            if(s[i]=='d'){
+
+            }
+
+            if(s[i]=='t'){
+
+            }
+
+            if(s[i]=='a'){
+
+            }
+        }
+        return;
+    }
+}
+
 int main(int argc, char* argv[]){
     
     //verify if the argument number is wrong
@@ -81,6 +186,9 @@ int main(int argc, char* argv[]){
 
     //print Menu for file type
     menu(buf);
+
+    //input of the desired options
+    input_options(filename);
 
     return 0;
 }
