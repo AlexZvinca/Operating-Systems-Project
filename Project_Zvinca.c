@@ -82,7 +82,7 @@ void input_options(char* file_name){
     l = strlen(s);
 
     if(S_ISREG(buf.st_mode)){
-        for(i=0;i<l;i++){
+        for(i=1;i<l;i++){
             if(s[i]=='n'){
                 printf("The name is %s\n", file_name);
             }
@@ -106,7 +106,72 @@ void input_options(char* file_name){
             }
 
             if(s[i]=='a'){
-                printf("!");
+                printf("User:\n");
+                    if(buf.st_mode & S_IRUSR){
+                        printf("Read: YES\n");
+                    }
+                    else{
+                        printf("Read: NO\n");
+                    }
+
+                    if(buf.st_mode & S_IWUSR){
+                        printf("Write: YES\n");
+                    }
+                    else{
+                        printf("Write: NO\n");
+                    }
+
+                    if(buf.st_mode & S_IXUSR){
+                        printf("Exec: YES\n");
+                    }
+                    else{
+                        printf("Exec: NO\n");
+                    }
+
+                printf("Group:\n");
+                    if(buf.st_mode & S_IRGRP){
+                        printf("Read: YES\n");
+                    }
+                    else{
+                        printf("Read: NO\n");
+                    }
+
+                    if(buf.st_mode & S_IWGRP){
+                        printf("Write: YES\n");
+                    }
+                    else{
+                        printf("Write: NO\n");
+                    }
+
+                    if(buf.st_mode & S_IXGRP){
+                        printf("Exec: YES\n");
+                    }
+                    else{
+                        printf("Exec: NO\n");
+                    }
+
+                printf("Others:\n");
+                    if(buf.st_mode & S_IROTH){
+                        printf("Read: YES\n");
+                    }
+                    else{
+                        printf("Read: NO\n");
+                    }
+
+                    if(buf.st_mode & S_IWOTH){
+                        printf("Write: YES\n");
+                    }
+                    else{
+                        printf("Write: NO\n");
+                    }
+
+                    if(buf.st_mode & S_IXOTH){
+                        printf("Exec: YES\n");
+                    }
+                    else{
+                        printf("Exec: NO\n");
+                    }
+                
             }
 
             if(s[i]=='l'){
@@ -173,7 +238,71 @@ void input_options(char* file_name){
             }
 
             if(s[i]=='a'){
+                printf("User:\n");
+                    if(buf.st_mode & S_IRUSR){
+                        printf("Read: YES\n");
+                    }
+                    else{
+                        printf("Read: NO\n");
+                    }
 
+                    if(buf.st_mode & S_IWUSR){
+                        printf("Write: YES\n");
+                    }
+                    else{
+                        printf("Write: NO\n");
+                    }
+
+                    if(buf.st_mode & S_IXUSR){
+                        printf("Exec: YES\n");
+                    }
+                    else{
+                        printf("Exec: NO\n");
+                    }
+
+                printf("Group:\n");
+                    if(buf.st_mode & S_IRGRP){
+                        printf("Read: YES\n");
+                    }
+                    else{
+                        printf("Read: NO\n");
+                    }
+
+                    if(buf.st_mode & S_IWGRP){
+                        printf("Write: YES\n");
+                    }
+                    else{
+                        printf("Write: NO\n");
+                    }
+
+                    if(buf.st_mode & S_IXGRP){
+                        printf("Exec: YES\n");
+                    }
+                    else{
+                        printf("Exec: NO\n");
+                    }
+
+                printf("Others:\n");
+                    if(buf.st_mode & S_IROTH){
+                        printf("Read: YES\n");
+                    }
+                    else{
+                        printf("Read: NO\n");
+                    }
+
+                    if(buf.st_mode & S_IWOTH){
+                        printf("Write: YES\n");
+                    }
+                    else{
+                        printf("Write: NO\n");
+                    }
+
+                    if(buf.st_mode & S_IXOTH){
+                        printf("Exec: YES\n");
+                    }
+                    else{
+                        printf("Exec: NO\n");
+                    }
             }
         }
         return;
