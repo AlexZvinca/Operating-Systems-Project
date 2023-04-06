@@ -47,7 +47,7 @@ void menu(struct stat buf){
     }
 
     if(S_ISDIR(buf.st_mode)){
-        printf("Will be added\n");
+        printf("\u2022 n: name\n\u2022 d: size\n\u2022 a:access rights\n\u2022 c: total number of files with .c extension\n");
         return;
     }
 
@@ -195,12 +195,95 @@ void input_options(char* file_name){
     
 
     if(S_ISDIR(buf.st_mode)){
-        printf("Not yet\n");
+        for(i=1;i<l;i++){
+            switch(s[i]){
+                case 'n':
+                    printf("The name is %s\n", file_name);
+                    break;
+                
+                case 'd':{
+                    long size;
+                    size = buf.st_size;
+                    printf("The size is %ld bytes\n", size);
+                    break;
+                }
+
+                case 'a':
+                    printf("User:\n");
+                        if(buf.st_mode & S_IRUSR){
+                            printf("Read: YES\n");
+                        }
+                        else{
+                            printf("Read: NO\n");
+                        }
+
+                        if(buf.st_mode & S_IWUSR){
+                            printf("Write: YES\n");
+                        }
+                        else{
+                            printf("Write: NO\n");
+                        }
+
+                        if(buf.st_mode & S_IXUSR){
+                            printf("Exec: YES\n");
+                        }
+                        else{
+                            printf("Exec: NO\n");
+                        }
+
+                    printf("Group:\n");
+                        if(buf.st_mode & S_IRGRP){
+                            printf("Read: YES\n");
+                        }
+                        else{
+                            printf("Read: NO\n");
+                        }
+
+                        if(buf.st_mode & S_IWGRP){
+                            printf("Write: YES\n");
+                        }
+                        else{
+                            printf("Write: NO\n");
+                        }
+
+                        if(buf.st_mode & S_IXGRP){
+                            printf("Exec: YES\n");
+                        }
+                        else{
+                            printf("Exec: NO\n");
+                        }
+
+                    printf("Others:\n");
+                        if(buf.st_mode & S_IROTH){
+                            printf("Read: YES\n");
+                        }
+                        else{
+                            printf("Read: NO\n");
+                        }
+
+                        if(buf.st_mode & S_IWOTH){
+                            printf("Write: YES\n");
+                        }
+                        else{
+                            printf("Write: NO\n");
+                        }
+
+                        if(buf.st_mode & S_IXOTH){
+                            printf("Exec: YES\n");
+                        }
+                        else{
+                            printf("Exec: NO\n");
+                        }
+                    break;
+                case 'c':
+                    break;
+            }
+        }
         return;
     }
 
     if(S_ISLNK(buf.st_mode)){
-        for(i=0;i<l;i++){
+        for(i=1;i<l;i++){
             if(s[i]=='n'){
                 printf("The name is %s\n", file_name);
             }
@@ -213,7 +296,7 @@ void input_options(char* file_name){
                     exit(errno);
                 }
 
-                printf("Symbolic link has been deleted");
+                printf("Symbolic link has been deleted\n");
                 return;
             }
 
