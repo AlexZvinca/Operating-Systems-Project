@@ -47,7 +47,7 @@ void menu(struct stat buf){
     }
 
     if(S_ISDIR(buf.st_mode)){
-        printf("\u2022 n: name\n\u2022 d: size\n\u2022 a:access rights\n\u2022 c: total number of files with .c extension\n");
+        printf("\u2022 n: name\n\u2022 d: size\n\u2022 a: access rights\n\u2022 c: total number of files with .c extension\n");
         return;
     }
 
@@ -57,12 +57,12 @@ void menu(struct stat buf){
     }
 }
 
-void input_options(char* file_name){
+void input_options(char* path){
 
     struct stat buf;
     int check;
 
-    check = lstat(file_name, &buf);
+    check = lstat(path, &buf);
     if(check == -1){
         perror(strerror(errno));
         exit(errno);
@@ -84,7 +84,18 @@ void input_options(char* file_name){
     if(S_ISREG(buf.st_mode)){
         for(i=1;i<l;i++){
             if(s[i]=='n'){
-                printf("The name is %s\n", file_name);
+                char filename[1024];
+                int len = strlen(path);
+                int count = 0, j = len;
+
+                while(path[j]!='/' && j>=0){
+                    j--;
+                }
+
+                while(j!=len){
+                    filename[count++] = path[++j];
+                }
+                printf("The name is %s\n", filename);
             }
 
             if(s[i]=='d'){
@@ -180,7 +191,7 @@ void input_options(char* file_name){
                 printf("Input name of link: ");
                 scanf("%s", link_name);
 
-                check = symlink(file_name, link_name);
+                check = symlink(path, link_name);
                 if(check == -1){
                     perror(strerror(errno));
                     exit(errno);
@@ -197,10 +208,24 @@ void input_options(char* file_name){
     if(S_ISDIR(buf.st_mode)){
         for(i=1;i<l;i++){
             switch(s[i]){
-                case 'n':
-                    printf("The name is %s\n", file_name);
+                case 'n':{
+                    char filename[1024];
+                    int len = strlen(path);
+                    int count = 0, j = len;
+
+                    while(path[j]!='/' && j>=0){
+                        j--;
+                    }
+
+                    while(j!=len){
+                        filename[count++] = path[++j];
+                    }
+
+                    printf("The name is %s\n", filename);
+
                     break;
-                
+                }
+
                 case 'd':{
                     long size;
                     size = buf.st_size;
@@ -285,11 +310,25 @@ void input_options(char* file_name){
     if(S_ISLNK(buf.st_mode)){
         for(i=1;i<l;i++){
             if(s[i]=='n'){
-                printf("The name is %s\n", file_name);
+
+                char filename[1024];
+                int len = strlen(path);
+                int count = 0, j = len;
+
+                while(path[j]!='/' && j>=0){
+                    j--;
+                }
+
+                while(j!=len){
+                filename[count++] = path[++j];
+                }
+                
+                printf("The name is %s\n", filename);
+
             }
 
             if(s[i]=='l'){
-                check = unlink(file_name);
+                check = unlink(path);
 
                 if(check == -1){
                     perror(strerror(errno));
@@ -309,7 +348,7 @@ void input_options(char* file_name){
             if(s[i]=='t'){
                 struct stat buf2;
 
-                check = stat(file_name, &buf2);
+                check = stat(path, &buf2);
                 if(check == -1){
                     perror(strerror(errno));
                     exit(errno);
