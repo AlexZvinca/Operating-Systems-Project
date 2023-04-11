@@ -6,6 +6,7 @@
 #include <sys/types.h>
 #include <time.h>
 #include <unistd.h>
+#include <dirent.h>
 
 void print_type(struct stat buf){
 
@@ -300,8 +301,39 @@ void input_options(char* path){
                             printf("Exec: NO\n");
                         }
                     break;
-                case 'c':
+                case 'c':{
+                    DIR *dir;
+                    dir = opendir(path);
+
+                    if(dir == NULL){
+                        perror(strerror(errno));
+                        exit(errno);
+                    }
+
+                    struct dirent *entry;
+                    int counter = 0;
+
+                    entry = readdir(dir);
+                    while(entry!=NULL){
+                        
+                        //printf("%s %c %c\n", entry->d_name, entry->d_name[strlen(entry->d_name)-1], entry->d_name[strlen(entry->d_name)-1]);
+                        if(entry->d_name[strlen(entry->d_name)-1]=='c' && entry->d_name[strlen(entry->d_name)-2]=='.'){
+                            counter++;
+                        }
+
+                        entry = readdir(dir);
+                        
+                    }
+
+                    check = closedir(dir);
+                    if(check == -1){
+                        perror(strerror(errno));
+                        exit(errno);
+                    }
+
+                    printf("There are %d files with the .c extension in this directory.\n", counter);
                     break;
+                }
             }
         }
         return;
@@ -444,7 +476,7 @@ int main(int argc, char* argv[]){
         //get path
         char path[1024];
         strcpy(path, argv[i]);
-        printf("%s\n", path);
+        
 
         //get filename
         char filename[1024];
