@@ -301,6 +301,7 @@ void input_options(char* path){
                             printf("Exec: NO\n");
                         }
                     break;
+                    
                 case 'c':{
                     DIR *dir;
                     dir = opendir(path);
