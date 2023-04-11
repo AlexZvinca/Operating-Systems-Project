@@ -394,33 +394,52 @@ void input_options(char* file_name){
 
 int main(int argc, char* argv[]){
     
-    //verify if the argument number is wrong
-    /*if(argc != 3){
-        printf("Wrong number of arguments");
-        exit(-1);
-    }*/
 
-    //get and print name of file
-    char filename[1024];
-    strcpy(filename, argv[1]);
-    printf("%s - ", filename);
-    
-    //use lstat on file and print file type
-    int check;
-    struct stat buf;
-    check = lstat(filename, &buf);
-    if(check == -1){
-        perror(strerror(errno));
-        exit(errno);
+    if(argc == 1){
+        printf("Not enough arguments\n");
+        exit(-1);
     }
 
-    print_type(buf);
+    for(int i=1;i<argc;i++){
+    
+        //get path
+        char path[1024];
+        strcpy(path, argv[i]);
+        printf("%s\n", path);
 
-    //print Menu for file type
-    menu(buf);
+        //get filename
+        char filename[1024];
+        int len = strlen(path);
+        int count = 0, j = len;
 
-    //input of the desired options
-    input_options(filename);
+        while(path[j]!='/' && j>=0){
+            j--;
+        }
+
+        while(j!=len){
+            filename[count++] = path[++j];
+        }
+    
+        printf("%s - ", filename);
+        
+        //use lstat on file and print file type
+        int check;
+        struct stat buf;
+        
+        check = lstat(path, &buf);
+        if(check == -1){
+            perror(strerror(errno));
+            exit(errno);
+        }
+
+        print_type(buf);
+
+        //print Menu for file type
+        menu(buf);
+
+        //input of the desired options
+        input_options(path);
+    }
 
     return 0;
 }
