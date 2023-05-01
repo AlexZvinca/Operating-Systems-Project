@@ -64,6 +64,24 @@ void menu(struct stat buf){
     }
 }
 
+void wait_for_children(){
+    pid_t awaited_child;
+    int status;
+
+    awaited_child = wait(&status);
+
+    while(awaited_child > 0){
+        if(WIFEXITED(status)){
+            printf("Child process with pid %d has terminated normally with code %d.\n\n", awaited_child, WEXITSTATUS(status));
+        }
+        else{
+            printf("Child process with pid %d has terminated abnormally with code %d.\n\n", awaited_child, WEXITSTATUS(status));
+        }
+
+        awaited_child = wait(&status);
+    }
+}
+
 void print_access_rights(struct stat buf){
     printf("User:\n");
         if(buf.st_mode & S_IRUSR){
@@ -132,6 +150,107 @@ void print_access_rights(struct stat buf){
         }
 }
 
+int count_lines(char *path){                          
+    FILE *f = fopen(path, "r");
+
+    if(f==NULL){
+        perror(strerror(errno));
+        exit(errno);
+    }
+
+    char c;
+    int lines=0, is_empty=1;
+
+    while ((c = fgetc(f)) != EOF){
+        if(c!=EOF){
+            is_empty = 0;
+        }
+
+        if (c == '\n'){
+            lines++;
+        }
+    }
+
+    if(is_empty==1){
+        return 0;
+    }
+    else{
+        return lines + 1;
+    }
+
+    fclose(f);
+    return lines;
+}
+
+void c_extension_work(char* path, struct stat buf){
+    char filename[1024];
+    get_filename(path, filename);
+    pid_t pid2;
+
+    pid2 = fork();
+    if(pid2 < 0){
+        perror(strerror(errno));
+        exit(errno);
+    }
+
+    else if(pid2 == 0){
+        if(filename[strlen(filename)-1]=='c' && filename[strlen(filename)-2]=='.'){
+            /*int check;
+            check = execlp("errs_and_warnings.sh", filename);
+            if(check == -1){
+                perror(strerror(errno));
+                exit(errno);
+            }   */; 
+
+        }
+
+        else{
+            printf("The number of lines in this file is %d.\n", count_lines(path));
+        } 
+
+        exit(EXIT_SUCCESS);
+    }
+
+    else if(pid2 > 0){
+        wait_for_children();
+    }  
+}
+
+void create_new_file(char* path, struct stat buf){
+    pid_t pid2;
+    
+    pid2 = fork();
+    if(pid2 < 0){
+        perror(strerror(errno));
+        exit(errno);
+    }
+
+    if(pid2==0){
+        char filename[1024], new_filename[1050], new_path[1050];
+
+        get_filename(path, filename);
+        strcpy(new_filename, filename);
+        strcat(new_filename, "_file.txt");
+        
+        strcpy(new_path, path);
+        strcat(new_path, "/");
+        strcat(new_path, new_filename);
+
+        FILE* f = fopen(new_path, "w");
+        if(f==NULL){
+            perror(strerror(errno));
+            exit(errno);
+        }
+        fclose(f);
+
+        exit(EXIT_SUCCESS);
+    }
+
+    else if(pid2>0){
+        wait_for_children();
+    }
+}
+
 void input_options(char* path, struct stat buf);
 
 void options_REG(char* path, struct stat buf, char* options){
@@ -188,10 +307,11 @@ void options_REG(char* path, struct stat buf, char* options){
                 perror(strerror(errno));
                 exit(errno);
             }
-
             printf("Link has been created!\n");
         }
     }
+
+    c_extension_work(path, buf);
 }
 
 void options_DIR(char* path, struct stat buf, char* options){
@@ -264,6 +384,8 @@ void options_DIR(char* path, struct stat buf, char* options){
             }
         }
     }
+
+    create_new_file(path, buf);
 }
 
 
@@ -407,21 +529,7 @@ int main(int argc, char* argv[]){
 
         //parent process
         else if (pid > 0){
-            pid_t awaited_child;
-            int status;
-
-            awaited_child = wait(&status);
-
-            while(awaited_child > 0){
-                if(WIFEXITED(status)){
-                    printf("Child process with pid %d has terminated normally with code %d.\n", awaited_child, WEXITSTATUS(status));
-                }
-                else{
-                    printf("Child process with pid %d has terminated abnormally with code %d.\n", awaited_child, WEXITSTATUS(status));
-                }
-
-                awaited_child = wait(&status);
-            }
+            wait_for_children();
         }
     }
 
