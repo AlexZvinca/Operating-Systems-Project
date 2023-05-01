@@ -272,7 +272,18 @@ void change_link_permissions(char* path, struct stat buf){
     }
 
     if(pid2==0){
+        int check;
+        check = chmod(path, S_IRUSR|S_IWUSR|S_IXUSR|S_IRGRP|S_IWGRP);
 
+        if(check == -1){
+            perror(strerror(errno));
+            exit(errno);
+        }
+
+        printf("The new acces rights are:\n");
+        print_access_rights(buf);
+
+        exit(EXIT_SUCCESS);
     }
 
     else if(pid2>0){
