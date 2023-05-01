@@ -8,6 +8,7 @@
 #include <unistd.h>
 #include <dirent.h>
 #include<sys/wait.h>
+#include <fcntl.h>
 
 void get_filename(char path[1024], char filename[1024]){
     int len = strlen(path);
@@ -236,14 +237,42 @@ void create_new_file(char* path, struct stat buf){
         strcat(new_path, "/");
         strcat(new_path, new_filename);
 
-        FILE* f = fopen(new_path, "w");
+        /*FILE* f = fopen(new_path, "w");
         if(f==NULL){
             perror(strerror(errno));
             exit(errno);
         }
-        fclose(f);
+        fclose(f);*/
+
+        int check;
+        check = creat(new_path, S_IRUSR);
+
+        if(check == -1){
+            perror(strerror(errno));
+            exit(errno);
+        }
+
+        close(check);
 
         exit(EXIT_SUCCESS);
+    }
+
+    else if(pid2>0){
+        wait_for_children();
+    }
+}
+
+void change_link_permissions(char* path, struct stat buf){
+    pid_t pid2;
+    
+    pid2 = fork();
+    if(pid2 < 0){
+        perror(strerror(errno));
+        exit(errno);
+    }
+
+    if(pid2==0){
+
     }
 
     else if(pid2>0){
@@ -447,6 +476,8 @@ void options_LNK(char* path, struct stat buf, char* options){
             print_access_rights(buf);
         }
     }
+
+    change_link_permissions(path, buf);
 }
 
 void input_options(char* path, struct stat buf){
