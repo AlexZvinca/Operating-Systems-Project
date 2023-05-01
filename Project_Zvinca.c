@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <sys/stat.h>
 #include <errno.h>
 #include <string.h>
@@ -7,7 +8,7 @@
 #include <time.h>
 #include <unistd.h>
 #include <dirent.h>
-#include<sys/wait.h>
+#include <sys/wait.h>
 #include <fcntl.h>
 
 void get_filename(char path[1024], char filename[1024]){
@@ -201,8 +202,52 @@ void c_extension_work(char* path, struct stat buf){
             if(check == -1){
                 perror(strerror(errno));
                 exit(errno);
-            }   */; 
+            }   */
+            int errors = 0, warnings = 0, score;
 
+            if(errors == 0 && warnings == 0){
+                score = 10;
+            }
+
+            if(errors >=1){
+                score = 1;
+            }
+
+            if(errors == 0 && warnings > 10){
+                score = 2;
+            }
+
+            if(errors == 0 && warnings <= 10){
+                score = 2 + 8 * (10 - warnings) / 10;
+            }
+
+            int fd;
+            fd = open("grades.txt", O_RDWR | O_CREAT);
+            if(fd == -1){
+                perror(strerror(errno));
+                exit(errno);
+            }
+
+            char filename[1024];
+            get_filename(path, filename);
+
+            char score_string[3];
+            score_string[0] = score / 10 + '0';
+            score_string[1] = score % 10 + '0';
+
+            char output[1050];
+            strcpy(output, filename);
+            strcat(output, ":");
+            strcat(output, score_string);
+
+            int check;
+            check = write(fd, output, strlen(output)); 
+            if(check == -1){
+                perror(strerror(errno));
+                exit(errno);
+            }
+
+            close(fd);
         }
 
         else{
