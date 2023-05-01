@@ -86,161 +86,133 @@ void input_options(char* path){
 
     if(S_ISREG(buf.st_mode)){
 
-        pid_t pid;
-        pid = fork();
+        char filename[1024];
 
-        if(pid < 0){
-            perror(strerror(errno));
-            exit(errno);
-        }
+        for(i=1;i<l;i++){
+            if(s[i]=='n'){
+                
+                int len = strlen(path);
+                int count = 0, j = len;
 
-        if(pid==0){
-
-            char filename[1024];
-
-            for(i=1;i<l;i++){
-                if(s[i]=='n'){
-                    
-                    int len = strlen(path);
-                    int count = 0, j = len;
-
-                    while(path[j]!='/' && j>=0){
-                        j--;
-                    }
-
-                    while(j!=len){
-                        filename[count++] = path[++j];
-                    }
-                    printf("The name is %s\n", filename);
+                while(path[j]!='/' && j>=0){
+                    j--;
                 }
 
-                if(s[i]=='d'){
-                    long size;
-                    size = buf.st_size;
-                    printf("The size is %ld bytes\n", size);
+                while(j!=len){
+                    filename[count++] = path[++j];
                 }
-
-                if(s[i]=='h'){
-                    int count;
-                    count = buf.st_nlink;
-                    printf("The number of hard links is %d\n", count);
-                }
-
-                if(s[i]=='m'){
-                    struct timespec ts;
-                    timespec_get(&ts, buf.st_mtime);
-                    printf("The last modification time is %ld.%.9ld\n", ts.tv_sec, ts.tv_nsec);
-                }
-
-                if(s[i]=='a'){
-                    printf("User:\n");
-                        if(buf.st_mode & S_IRUSR){
-                            printf("Read: YES\n");
-                        }
-                        else{
-                            printf("Read: NO\n");
-                        }
-
-                        if(buf.st_mode & S_IWUSR){
-                            printf("Write: YES\n");
-                        }
-                        else{
-                            printf("Write: NO\n");
-                        }
-
-                        if(buf.st_mode & S_IXUSR){
-                            printf("Exec: YES\n");
-                        }
-                        else{
-                            printf("Exec: NO\n");
-                        }
-
-                    printf("Group:\n");
-                        if(buf.st_mode & S_IRGRP){
-                            printf("Read: YES\n");
-                        }
-                        else{
-                            printf("Read: NO\n");
-                        }
-
-                        if(buf.st_mode & S_IWGRP){
-                            printf("Write: YES\n");
-                        }
-                        else{
-                            printf("Write: NO\n");
-                        }
-
-                        if(buf.st_mode & S_IXGRP){
-                            printf("Exec: YES\n");
-                        }
-                        else{
-                            printf("Exec: NO\n");
-                        }
-
-                    printf("Others:\n");
-                        if(buf.st_mode & S_IROTH){
-                            printf("Read: YES\n");
-                        }
-                        else{
-                            printf("Read: NO\n");
-                        }
-
-                        if(buf.st_mode & S_IWOTH){
-                            printf("Write: YES\n");
-                        }
-                        else{
-                            printf("Write: NO\n");
-                        }
-
-                        if(buf.st_mode & S_IXOTH){
-                            printf("Exec: YES\n");
-                        }
-                        else{
-                            printf("Exec: NO\n");
-                        }
-                    
-                }
-
-                if(s[i]=='l'){
-                    char link_name[1024];
-
-                    printf("Input name of link: ");
-                    scanf("%s", link_name);
-
-                    check = symlink(path, link_name);
-                    if(check == -1){
-                        perror(strerror(errno));
-                        exit(errno);
-                    }
-
-                    printf("Link has been created!\n");
-                }
+                printf("The name is %s\n", filename);
             }
 
-            if(filename[strlen(filename)-1]=='c' && filename[strlen(filename)-2]=='.'){
-                pid_t pid2;
-                pid2 = fork();
+            if(s[i]=='d'){
+                long size;
+                size = buf.st_size;
+                printf("The size is %ld bytes\n", size);
+            }
 
-                if(pid2 < 0){
+            if(s[i]=='h'){
+                int count;
+                count = buf.st_nlink;
+                printf("The number of hard links is %d\n", count);
+            }
+
+            if(s[i]=='m'){
+                struct timespec ts;
+                timespec_get(&ts, buf.st_mtime);
+                printf("The last modification time is %ld.%.9ld\n", ts.tv_sec, ts.tv_nsec);
+            }
+
+            if(s[i]=='a'){
+                printf("User:\n");
+                    if(buf.st_mode & S_IRUSR){
+                        printf("Read: YES\n");
+                    }
+                    else{
+                        printf("Read: NO\n");
+                    }
+
+                    if(buf.st_mode & S_IWUSR){
+                        printf("Write: YES\n");
+                    }
+                    else{
+                        printf("Write: NO\n");
+                    }
+
+                    if(buf.st_mode & S_IXUSR){
+                        printf("Exec: YES\n");
+                    }
+                    else{
+                        printf("Exec: NO\n");
+                    }
+
+                printf("Group:\n");
+                    if(buf.st_mode & S_IRGRP){
+                        printf("Read: YES\n");
+                    }
+                    else{
+                        printf("Read: NO\n");
+                    }
+
+                    if(buf.st_mode & S_IWGRP){
+                        printf("Write: YES\n");
+                    }
+                    else{
+                        printf("Write: NO\n");
+                    }
+
+                    if(buf.st_mode & S_IXGRP){
+                        printf("Exec: YES\n");
+                    }
+                    else{
+                        printf("Exec: NO\n");
+                    }
+
+                printf("Others:\n");
+                    if(buf.st_mode & S_IROTH){
+                        printf("Read: YES\n");
+                    }
+                    else{
+                        printf("Read: NO\n");
+                    }
+
+                    if(buf.st_mode & S_IWOTH){
+                        printf("Write: YES\n");
+                    }
+                    else{
+                        printf("Write: NO\n");
+                    }
+
+                    if(buf.st_mode & S_IXOTH){
+                        printf("Exec: YES\n");
+                    }
+                    else{
+                        printf("Exec: NO\n");
+                    }
+                
+            }
+
+            if(s[i]=='l'){
+                char link_name[1024];
+
+                printf("Input name of link: ");
+                scanf("%s", link_name);
+
+                check = symlink(path, link_name);
+                if(check == -1){
                     perror(strerror(errno));
                     exit(errno);
                 }
 
-                if(pid2 == 0){
-                    execlp("bash", "bash", "");
-                }
+                printf("Link has been created!\n");
             }
-
-            return;
         }
+
+        return;
     }
             
         
 
     if(S_ISDIR(buf.st_mode)){
-
-        pid_t pid3;
-        pid3
 
         for(i=1;i<l;i++){
             switch(s[i]){
