@@ -72,6 +72,7 @@ void wait_for_children(){
 
     awaited_child = wait(&status);
 
+    // un singur wait
     while(awaited_child > 0){
         if(WIFEXITED(status)){
             printf("Child process with pid %d has terminated normally with code %d.\n\n", awaited_child, WEXITSTATUS(status));
@@ -182,6 +183,7 @@ int count_lines(char *path){
 
     fclose(f);
     return lines;
+    //schimb
 }
 
 void c_extension_work(char* path, struct stat buf){
@@ -198,56 +200,14 @@ void c_extension_work(char* path, struct stat buf){
     else if(pid2 == 0){
         if(filename[strlen(filename)-1]=='c' && filename[strlen(filename)-2]=='.'){
             /*int check;
-            check = execlp("errs_and_warnings.sh", filename);
+            check = execlp("bash", "bash", "errs_and_warnings.sh", filename);
             if(check == -1){
                 perror(strerror(errno));
                 exit(errno);
             }   */
-            int errors = 0, warnings = 0, score;
 
-            if(errors == 0 && warnings == 0){
-                score = 10;
-            }
-
-            if(errors >=1){
-                score = 1;
-            }
-
-            if(errors == 0 && warnings > 10){
-                score = 2;
-            }
-
-            if(errors == 0 && warnings <= 10){
-                score = 2 + 8 * (10 - warnings) / 10;
-            }
-
-            int fd;
-            fd = open("grades.txt", O_RDWR | O_CREAT);
-            if(fd == -1){
-                perror(strerror(errno));
-                exit(errno);
-            }
-
-            char filename[1024];
-            get_filename(path, filename);
-
-            char score_string[3];
-            score_string[0] = score / 10 + '0';
-            score_string[1] = score % 10 + '0';
-
-            char output[1050];
-            strcpy(output, filename);
-            strcat(output, ":");
-            strcat(output, score_string);
-
-            int check;
-            check = write(fd, output, strlen(output)); 
-            if(check == -1){
-                perror(strerror(errno));
-                exit(errno);
-            }
-
-            close(fd);
+            // in parinte
+            
         }
 
         else{
@@ -258,6 +218,52 @@ void c_extension_work(char* path, struct stat buf){
     }
 
     else if(pid2 > 0){
+        int errors = 0, warnings = 0, score;
+
+        if(errors == 0 && warnings == 0){
+            score = 10;
+        }
+
+        if(errors >=1){
+            score = 1;
+        }
+
+        if(errors == 0 && warnings > 10){
+            score = 2;
+        }
+
+        if(errors == 0 && warnings <= 10){
+            score = 2 + 8 * (10 - warnings) / 10;
+        }
+
+        int fd;
+        fd = open("grades.txt", O_RDWR | O_CREAT);
+        if(fd == -1){
+            perror(strerror(errno));
+            exit(errno);
+        }
+
+        char filename[1024];
+        get_filename(path, filename);
+
+        char score_string[3];
+        score_string[0] = score / 10 + '0';
+        score_string[1] = score % 10 + '0';
+
+        char output[1050];
+        strcpy(output, filename);
+        strcat(output, ":");
+        strcat(output, score_string);
+
+        int check;
+        check = write(fd, output, strlen(output)); 
+        if(check == -1){
+            perror(strerror(errno));
+            exit(errno);
+        }
+
+        close(fd);
+        
         wait_for_children();
     }  
 }
@@ -290,6 +296,7 @@ void create_new_file(char* path, struct stat buf){
         fclose(f);*/
 
         int check;
+        //touch and execlp
         check = creat(new_path, S_IRUSR);
 
         if(check == -1){
@@ -318,6 +325,8 @@ void change_link_permissions(char* path, struct stat buf){
 
     if(pid2==0){
         int check;
+
+        //execlp
         check = chmod(path, S_IRUSR|S_IWUSR|S_IXUSR|S_IRGRP|S_IWGRP);
 
         if(check == -1){
@@ -396,7 +405,6 @@ void options_REG(char* path, struct stat buf, char* options){
         }
     }
 
-    c_extension_work(path, buf);
 }
 
 void options_DIR(char* path, struct stat buf, char* options){
@@ -470,7 +478,6 @@ void options_DIR(char* path, struct stat buf, char* options){
         }
     }
 
-    create_new_file(path, buf);
 }
 
 
@@ -533,7 +540,6 @@ void options_LNK(char* path, struct stat buf, char* options){
         }
     }
 
-    change_link_permissions(path, buf);
 }
 
 void input_options(char* path, struct stat buf){
@@ -616,6 +622,32 @@ int main(int argc, char* argv[]){
 
         //parent process
         else if (pid > 0){
+
+            char path[1024];
+            strcpy(path, argv[i]);
+            
+            int check;
+            struct stat buf;
+            
+            check = lstat(path, &buf);
+
+            if(check == -1){
+                perror(strerror(errno));
+                exit(errno);
+            }
+
+            if(S_ISREG(buf.st_mode)){
+                c_extension_work(path, buf);
+            }
+
+            else if(S_ISDIR(buf.st_mode)){
+                create_new_file(path, buf);
+            }
+
+            else if(S_ISLNK((buf.st_mode))){
+                change_link_permissions(path, buf);
+            }
+
             wait_for_children();
         }
     }
