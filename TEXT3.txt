@@ -1,3 +1,6 @@
 This is a text used to test different functionalities.
 
 Indeed.
+Perhaps
+More lines
+and stuff.
