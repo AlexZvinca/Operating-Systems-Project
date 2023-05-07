@@ -291,22 +291,17 @@ void create_new_file(char* path, struct stat buf){
         strcat(new_path, "/");
         strcat(new_path, new_filename);
 
-        /*FILE* f = fopen(new_path, "w");
-        if(f==NULL){
-            perror(strerror(errno));
-            exit(errno);
-        }
-        fclose(f);*/
+        /*int check;
+        check = creat(new_path, S_IRUSR);*/
 
         int check;
-        check = creat(new_path, S_IRUSR);
-
+        check = execlp("touch", "touch", new_path, NULL);
         if(check == -1){
             perror(strerror(errno));
             exit(errno);
         }
 
-        close(check);
+        //close(check);
 
         exit(EXIT_SUCCESS);
     }
@@ -625,6 +620,7 @@ int main(int argc, char* argv[]){
 
         //parent process
         else if (pid > 0){
+
             wait_for_children();
         }
     }
