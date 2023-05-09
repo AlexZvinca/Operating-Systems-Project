@@ -265,7 +265,7 @@ void c_extension_work(char* path, struct stat buf){
         
        
         int fd;
-        
+        //o
         fd = open("grades.txt", O_RDWR | O_CREAT, S_IRWXU);
         if(fd == -1){
             perror(strerror(errno));
