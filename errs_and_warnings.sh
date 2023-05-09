@@ -18,8 +18,7 @@ errors=$(echo "$output" | grep -c "error:")
 warnings=$(echo "$output" | grep -c "warning:")
 
 # Print the results
-echo "Errors: $errors"
-echo "Warnings: $warnings"
+echo "$errors $warnings"
 
 # Exit successfully
 exit 0

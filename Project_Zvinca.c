@@ -152,7 +152,7 @@ void print_access_rights(struct stat buf){
         }
 }
 
-int count_lines(char *path){                          
+/*int count_lines(char *path){                          
     FILE *f = fopen(path, "r");
 
     if(f==NULL){
@@ -182,72 +182,39 @@ int count_lines(char *path){
 
     fclose(f);
     return lines;
-}
+}*/
 
 void c_extension_work(char* path, struct stat buf){
     char filename[1024];
     get_filename(path, filename);
     pid_t pid2;
+    int pfd[2];
+
+    if(pipe(pfd)<0){
+        perror(strerror(errno));
+        exit(errno);
+    }
 
     pid2 = fork();
+
     if(pid2 < 0){
         perror(strerror(errno));
         exit(errno);
     }
 
     else if(pid2 == 0){
+
+        close(pfd[0]);
+
         if(filename[strlen(filename)-1]=='c' && filename[strlen(filename)-2]=='.'){
-            /*int check;
-            check = execlp("errs_and_warnings.sh", filename);
-            if(check == -1){
-                perror(strerror(errno));
-                exit(errno);
-            }   */
-            int errors = 0, warnings = 0, score;
-
-            if(errors == 0 && warnings == 0){
-                score = 10;
-            }
-
-            if(errors >=1){
-                score = 1;
-            }
-
-            if(errors == 0 && warnings > 10){
-                score = 2;
-            }
-
-            if(errors == 0 && warnings <= 10){
-                score = 2 + 8 * (10 - warnings) / 10;
-            }
-
-            int fd;
-            fd = open("grades.txt", O_RDWR | O_CREAT);
-            if(fd == -1){
-                perror(strerror(errno));
-                exit(errno);
-            }
-
-            char filename[1024];
-            get_filename(path, filename);
-
-            char score_string[3];
-            score_string[0] = score / 10 + '0';
-            score_string[1] = score % 10 + '0';
-
-            char output[1050];
-            strcpy(output, filename);
-            strcat(output, ":");
-            strcat(output, score_string);
-
             int check;
-            check = write(fd, output, strlen(output)); 
+
+            dup2(pfd[1],1);
+            check = execlp("bash", "bash", "errs_and_warnings.sh", path, NULL);
             if(check == -1){
                 perror(strerror(errno));
                 exit(errno);
-            }
-
-            close(fd);
+            }   
         }
 
         else{
@@ -263,10 +230,75 @@ void c_extension_work(char* path, struct stat buf){
             
         } 
 
-        //exit(EXIT_SUCCESS);
+        exit(EXIT_SUCCESS);
     }
 
     else if(pid2 > 0){
+
+        int errors = 0, warnings = 0, score=0;
+        FILE* stream;
+
+        close(pfd[1]);
+        
+        stream = fdopen(pfd[0],"r");
+        
+        fscanf(stream, "%d %d", &errors, &warnings);
+        printf("Errors: %d\nWarnings: %d\n", errors, warnings);
+        
+
+        if(errors == 0 && warnings == 0){
+            score = 10;
+        }
+
+        
+        if(errors >= 1){
+            score = 1;
+        }
+
+        if(errors == 0 && warnings > 10){
+            score = 2;
+        }
+
+        if(errors == 0 && warnings <= 10){
+            score = 2 + 8 * (10 - warnings) / 10;
+        }
+        
+       
+        int fd;
+        
+        fd = open("grades.txt", O_RDWR | O_CREAT, S_IRWXU);
+        if(fd == -1){
+            perror(strerror(errno));
+            exit(errno);
+        }
+
+        char filename[1024];
+        get_filename(path, filename);
+
+        char score_string[3];
+        if(score<10){
+            score_string[0] = score + '0'; 
+        }
+        else{
+            score_string[0] = score / 10 + '0';
+            score_string[1] = score % 10 + '0';
+        }
+
+        char output[1050];
+        strcpy(output, filename);
+        strcat(output, ":");
+        strcat(output, score_string);
+
+        int check;
+        check = write(fd, output, strlen(output)); 
+        if(check == -1){
+            perror(strerror(errno));
+            exit(errno);
+        }
+
+        close(fd);
+        close(pfd[0]);
+
         wait_for_children();
     }  
 }
