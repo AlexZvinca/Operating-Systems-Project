@@ -70,9 +70,10 @@ void wait_for_children(){
     pid_t awaited_child;
     int status;
 
-    awaited_child = wait(&status);
+  
 
-    while(awaited_child > 0){
+    for(int i=1;i<=2;i++){  
+        awaited_child = wait(&status);
         if(WIFEXITED(status)){
             printf("Child process with pid %d has terminated normally with code %d.\n\n", awaited_child, WEXITSTATUS(status));
         }
@@ -80,7 +81,7 @@ void wait_for_children(){
             printf("Child process with pid %d has terminated abnormally with code %d.\n\n", awaited_child, WEXITSTATUS(status));
         }
 
-        awaited_child = wait(&status);
+        //awaited_child = wait(&status);
     }
 }
 
@@ -234,7 +235,9 @@ void c_extension_work(char* path, struct stat buf){
     }
 
     else if(pid2 > 0){
+        //de mutat dupa doua wait uri
 
+        wait_for_children();
         if(filename[strlen(filename)-1]=='c' && filename[strlen(filename)-2]=='.'){
             int errors = 0, warnings = 0, score=0;
             FILE* stream;
@@ -243,6 +246,7 @@ void c_extension_work(char* path, struct stat buf){
             
             stream = fdopen(pfd[0],"r");
             
+            //read in loc de fscanf
             fscanf(stream, "%d %d", &errors, &warnings);
             printf("Errors: %d\nWarnings: %d\n", errors, warnings);
             
@@ -265,8 +269,8 @@ void c_extension_work(char* path, struct stat buf){
             
         
             int fd;
-            
-            fd = open("grades.txt", O_RDWR | O_CREAT, S_IRWXU);
+            //backslash
+            fd = open("grades.txt", O_RDWR | O_APPEND | O_CREAT, S_IRWXU);
             if(fd == -1){
                 perror(strerror(errno));
                 exit(errno);
@@ -288,6 +292,7 @@ void c_extension_work(char* path, struct stat buf){
             strcpy(output, filename);
             strcat(output, ":");
             strcat(output, score_string);
+            strcat(output, "\n");
 
             int check;
             check = write(fd, output, strlen(output)); 
@@ -300,7 +305,6 @@ void c_extension_work(char* path, struct stat buf){
             close(pfd[0]);
         }
         
-        wait_for_children();
     }  
 }
 
@@ -683,7 +687,7 @@ int main(int argc, char* argv[]){
                 change_link_permissions(path, buf);
             }
 
-            wait_for_children();
+            //wait_for_children();
         }
     }
 
