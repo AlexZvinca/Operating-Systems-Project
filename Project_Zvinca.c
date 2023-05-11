@@ -153,38 +153,6 @@ void print_access_rights(struct stat buf){
         }
 }
 
-/*int count_lines(char *path){                          
-    FILE *f = fopen(path, "r");
-
-    if(f==NULL){
-        perror(strerror(errno));
-        exit(errno);
-    }
-
-    char c;
-    int lines=0, is_empty=1;
-
-    while ((c = fgetc(f)) != EOF){
-        if(c!=EOF){
-            is_empty = 0;
-        }
-
-        if (c == '\n'){
-            lines++;
-        }
-    }
-
-    if(is_empty==1){
-        return 0;
-    }
-    else{
-        return lines + 1;
-    }
-
-    fclose(f);
-    return lines;
-}*/
-
 void c_extension_work(char* path, struct stat buf){
     char filename[1024];
     get_filename(path, filename);
@@ -235,21 +203,28 @@ void c_extension_work(char* path, struct stat buf){
     }
 
     else if(pid2 > 0){
-        //de mutat dupa doua wait uri
 
         wait_for_children();
         if(filename[strlen(filename)-1]=='c' && filename[strlen(filename)-2]=='.'){
             int errors = 0, warnings = 0, score=0;
-            FILE* stream;
+            //FILE* stream;
 
             close(pfd[1]);
-            
-            stream = fdopen(pfd[0],"r");
-            
-            //read in loc de fscanf
-            fscanf(stream, "%d %d", &errors, &warnings);
+      
+            /*stream = fdopen(pfd[0],"r");
+            fscanf(stream, "%d %d", &errors, &warnings);*/
+
+            char s_buff[5];
+            int check; 
+
+            check = read(pfd[0], s_buff, 5);
+            if(check == -1){
+                perror(strerror(errno));
+                exit(errno);
+            }
+            sscanf(s_buff, "%d %d", &errors, &warnings);
+
             printf("Errors: %d\nWarnings: %d\n", errors, warnings);
-            
 
             if(errors == 0 && warnings == 0){
                 score = 10;
@@ -269,7 +244,7 @@ void c_extension_work(char* path, struct stat buf){
             
         
             int fd;
-            //backslash
+           
             fd = open("grades.txt", O_RDWR | O_APPEND | O_CREAT, S_IRWXU);
             if(fd == -1){
                 perror(strerror(errno));
@@ -294,7 +269,6 @@ void c_extension_work(char* path, struct stat buf){
             strcat(output, score_string);
             strcat(output, "\n");
 
-            int check;
             check = write(fd, output, strlen(output)); 
             if(check == -1){
                 perror(strerror(errno));
