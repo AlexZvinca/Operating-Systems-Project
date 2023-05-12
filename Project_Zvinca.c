@@ -362,6 +362,7 @@ void options_REG(char* path, struct stat buf, char* options){
     for(i=1;i<l;i++){
         if(!strchr("ndhmal", options[i])){
             printf("Wrong input. Please enter your options again:\n");
+            menu(buf);
             input_options(path, buf);
             return;
         }
@@ -421,6 +422,7 @@ void options_DIR(char* path, struct stat buf, char* options){
     for(i=1;i<l;i++){
         if(!strchr("ndac", options[i])){
             printf("Wrong input. Please enter your options again:\n");
+            menu(buf);
             input_options(path, buf);
             return;
         }
@@ -496,6 +498,7 @@ void options_LNK(char* path, struct stat buf, char* options){
     for(i=1;i<l;i++){
         if(!strchr("nldta", options[i])){
             printf("Wrong input. Please enter your options again:\n");
+            menu(buf);
             input_options(path, buf);
             return;
         }
@@ -560,6 +563,7 @@ void input_options(char* path, struct stat buf){
 
     if(options[0]!='-'){
         printf("Wrong input. Please enter your options again:\n");
+        menu(buf);
         input_options(path, buf);
         return;
     }
